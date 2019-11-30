@@ -1,15 +1,13 @@
 package tron.controller;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
+import tron.controller.router.Router;
 import tron.model.GameFlow;
 import tron.model.network.client.ClientSocketHandler;
 import tron.model.network.messages.LoginResponse;
@@ -28,6 +26,10 @@ public class MenuController {
 
     public void initialize() {
         contentPane.setStyle("-fx-background-color: #202020");
+        logoImageView.setImage(new Image("/images/logo.png"));
+        logoImageView.setFitHeight(360);
+        logoImageView.setFitWidth(640);
+        logoImageView.setX(-165);
         addressTextField.setVisible(false);
         enterButton.setVisible(false);
         errorLabel.setVisible(false);
@@ -35,23 +37,11 @@ public class MenuController {
 
     public void hostButtonPressed(ActionEvent actionEvent) throws IOException {
         Server server = new Server();
-        Stage stage = ((Stage) ((Button) actionEvent.getSource()).getScene().getWindow());
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
-        Parent newScene = loader.load();
-        Scene scene = new Scene(newScene);
-        stage.setScene(scene);
-        MainController controller = loader.getController();
-        System.out.println("here");
-
         ClientSocketHandler.openConnection("localhost", 55555);
         LoginResponse loginResponse = (LoginResponse) ClientSocketHandler.getConnection().readObject();
-
         GameFlow.getInstance().setPlayer(loginResponse.getPlayer());
-
-        scene.setOnKeyPressed(controller::handleKeyPressed);
-        stage.show();
-        controller.startGameLoop();
-        //GameFlow.getInstance().startNewGame();
+        Router.goTo("game", scene -> scene.setOnKeyPressed(keyEvent -> GameFlow.getInstance().changePlayerDirection(keyEvent.getCode())));
+        GameFlow.getInstance().startGame();
     }
 
     public void connectButtonPressed(ActionEvent actionEvent) {
@@ -74,24 +64,12 @@ public class MenuController {
         }
 
         if (loginResponse.isSuccess()) {
-            Stage stage = ((Stage) ((Button) actionEvent.getSource()).getScene().getWindow());
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
-            Parent newScene = null;
-            try {
-                newScene = loader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Scene scene = new Scene(newScene);
-            stage.setScene(scene);
-            MainController controller = loader.getController();
             GameFlow.getInstance().setPlayer(loginResponse.getPlayer());
-            scene.setOnKeyPressed(controller::handleKeyPressed);
-            stage.show();
-            controller.startGameLoop();
+            Router.goTo("game", scene -> scene.setOnKeyPressed(keyEvent -> GameFlow.getInstance().changePlayerDirection(keyEvent.getCode())));
+            GameFlow.getInstance().startGame();
         } else {
-            // refused
+            errorLabel.setText("Сервер переполнен");
+            errorLabel.setVisible(true);
         }
-
     }
 }
