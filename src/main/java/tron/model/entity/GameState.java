@@ -4,30 +4,30 @@ import java.util.ArrayList;
 
 public class GameState {
     private int currentRound;
+    private ArrayList<String> players;
     private ArrayList<String> playersActive;
     private ArrayList<Integer> scores;
 
     public GameState() {
+        players = new ArrayList<>();
         playersActive = new ArrayList<>();
         scores = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             scores.add(0);
         }
 
-        playersActive.add("PLAYER1");
-        playersActive.add("PLAYER2");
-        playersActive.add("PLAYER3");
-        playersActive.add("PLAYER4");
+        players.add("PLAYER1");
+        players.add("PLAYER2");
+        players.add("PLAYER3");
+        players.add("PLAYER4");
+
+        playersActive = new ArrayList<>(players);
 
         currentRound = 1;
     }
 
     public void resetActivePlayers() {
-        playersActive.clear();
-        playersActive.add("PLAYER1");
-        playersActive.add("PLAYER2");
-        playersActive.add("PLAYER3");
-        playersActive.add("PLAYER4");
+        playersActive = new ArrayList<>(players);
     }
 
     public void endRound(String winner) {
@@ -59,6 +59,14 @@ public class GameState {
 
     public void setScores(ArrayList<Integer> scores) {
         this.scores = scores;
+    }
+
+    public ArrayList<String> getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(ArrayList<String> players) {
+        this.players = players;
     }
 
     @Override
