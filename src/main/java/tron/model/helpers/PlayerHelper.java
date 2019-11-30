@@ -20,6 +20,21 @@ public class PlayerHelper {
         }
     }
 
+    public static Point getIntitialPoint(int id) {
+        switch (id) {
+            case 1:
+                return new Point(40, 20);
+            case 2:
+                return new Point(80, 20);
+            case 3:
+                return new Point(40, 40);
+            case 4:
+                return new Point(80, 40);
+            default:
+                throw new IllegalArgumentException("Game does not support more than 4 players");
+        }
+    }
+
     public static Direction getInitialDirection(Player player) {
         switch (player.getPlayerNumber()) {
             case 1:
