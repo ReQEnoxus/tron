@@ -42,6 +42,15 @@ public class ClientSocketHandler {
         }
     }
 
+    public static void closeConnection() {
+        try {
+            connection.socket.close();
+            connection = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void writeObject(Serializable object) {
         try {
             synchronized (objectOutputStream) {
