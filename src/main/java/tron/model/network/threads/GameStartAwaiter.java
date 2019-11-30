@@ -1,13 +1,25 @@
 package tron.model.network.threads;
 
+import javafx.application.Platform;
+import tron.controller.router.Router;
 import tron.model.GameFlow;
 import tron.model.entity.CellType;
 import tron.model.network.client.ClientSocketHandler;
-import tron.model.network.messages.DataChunk;
-import tron.model.network.messages.GameStartMessage;
-import tron.model.network.messages.IntroduceClientsMessage;
+import tron.model.network.messages.*;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameStartAwaiter extends Thread {
+    private AtomicBoolean successful = new AtomicBoolean(true);
+
+    public AtomicBoolean getSuccessful() {
+        return successful;
+    }
+
+    public void setSuccessful(AtomicBoolean successful) {
+        this.successful = successful;
+    }
+
     @Override
     public void run() {
         while (true) {
@@ -19,6 +31,22 @@ public class GameStartAwaiter extends Thread {
                 break;
             } else if (serverData instanceof IntroduceClientsMessage) {
                 ClientSocketHandler.getConnection().writeObject(new DataChunk(GameFlow.getInstance().getPlayer().getPlayerNumber(), GameFlow.getInstance().getPlayer().getCurrentPoint().getX(), GameFlow.getInstance().getPlayer().getCurrentPoint().getY(), false));
+            } else if (serverData instanceof PlayerLeftMessage) {
+                int rows = GameFlow.getInstance().getGameField().getField().length;
+                int cols = GameFlow.getInstance().getGameField().getField()[0].length;
+
+                for (int i = 0; i < rows; i++) {
+                    for (int j = 0; j < cols; j++) {
+                        if (GameFlow.getInstance().getGameField().getField()[i][j] == CellType.valueOf("PLAYER" + ((PlayerLeftMessage) serverData).getPlayerId())) {
+                            GameFlow.getInstance().getGameField().setCell(i, j, CellType.EMPTY);
+                        }
+                    }
+                }
+            } else if (serverData instanceof GameExitResponse || serverData instanceof GameEndMessage) {
+                successful.set(false);
+                ClientSocketHandler.closeConnection();
+                Platform.runLater(() -> Router.goTo("menu"));
+                break;
             }
         }
     }
