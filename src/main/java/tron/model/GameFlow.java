@@ -2,18 +2,18 @@ package tron.model;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
+import tron.controller.router.Router;
 import tron.model.entity.*;
 import tron.model.helpers.PlayerHelper;
 import tron.model.network.client.ClientSocketHandler;
-import tron.model.network.messages.DataChunk;
-import tron.model.network.messages.IntroduceClientsMessage;
-import tron.model.network.messages.RoundEndMessage;
-import tron.model.network.messages.RoundStartMessage;
+import tron.model.network.messages.*;
 import tron.model.network.threads.GameStartAwaiter;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -73,33 +73,51 @@ public class GameFlow {
         noOfCellsInCol = cols;
     }
 
+    public void startGame() {
+        setBounds(128, 60);
+        setTimeLabel(timeLabel);
+        setScoreLabel(scoreLabel);
+        setSpeedFactor(2);
+        startGameLoop();
+    }
+
+    public void stopGame() {
+        ClientSocketHandler.getConnection().writeObject(new GameExitRequest(player.getPlayerNumber()));
+    }
+
     public void startGameLoop() {
         new Thread(() -> {
+            AtomicBoolean roundEnded = new AtomicBoolean(false);
+            System.out.println("player" + player.getPlayerNumber() + " game loop started");
             getPlayer().setDirection(PlayerHelper.getInitialDirection(getPlayer()));
             getPlayer().setLost(false);
             getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer()));
 
             getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName()));
 
-            Thread gameStartWaiter = new GameStartAwaiter(); // thread that waits for the server to start the game
+            GameStartAwaiter gameStartWaiter = new GameStartAwaiter(); // thread that waits for the server to start the game
 
             gameStartWaiter.start();
 
             try {
                 gameStartWaiter.join();
+                if (!gameStartWaiter.getSuccessful().get()) {
+                    return;
+                }
+                onBreak.set(false);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             scoreText = "0:0:0:0";
+            timeText = "00:00";
 
             gameLoop = new Timeline();
             gameLoop.setCycleCount(Timeline.INDEFINITE);
 
             AtomicLong timeStart = new AtomicLong(System.currentTimeMillis());
             AtomicLong loops = new AtomicLong(speedFactor);
-
-            AtomicBoolean roundEnded = new AtomicBoolean(false);
 
             new Thread(() -> { // start getting data from server (during the game)
                 while (true) {
@@ -138,11 +156,42 @@ public class GameFlow {
                         getPlayer().setLost(false);
                     } else if (serverData instanceof IntroduceClientsMessage) {
                         ClientSocketHandler.getConnection().writeObject(new DataChunk(player.getPlayerNumber(), player.getCurrentPoint().getX(), player.getCurrentPoint().getY(), false));
+                    } else if (serverData instanceof GameEndMessage) {
+                        onBreak.set(true);
+                        System.out.println(serverData);
+                        System.out.println(new Date());
+                        scoreText = ((GameEndMessage) serverData).getMessage();
+                        for (int i = 2; i > 0; i--) {
+                            timeText = "Игра завершится через " + i + " секунд";
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        gameLoop.stop();
+                        ClientSocketHandler.closeConnection();
+                        Platform.runLater(() -> Router.goTo("menu"));
+                        break;
+                    } else if (serverData instanceof GameExitResponse) {
+                        ClientSocketHandler.closeConnection();
+                        gameLoop.stop();
+                        Platform.runLater(() -> Router.goTo("menu"));
+                        break;
+                    } else if (serverData instanceof PlayerLeftMessage) {
+                        int rows = GameFlow.getInstance().getGameField().getField().length;
+                        int cols = GameFlow.getInstance().getGameField().getField()[0].length;
+
+                        for (int i = 0; i < rows; i++) {
+                            for (int j = 0; j < cols; j++) {
+                                if (GameFlow.getInstance().getGameField().getField()[i][j] == CellType.valueOf("PLAYER" + ((PlayerLeftMessage) serverData).getPlayerId())) {
+                                    GameFlow.getInstance().getGameField().setCell(i, j, CellType.EMPTY);
+                                }
+                            }
+                        }
                     }
                 }
             }).start();
-
-
             KeyFrame kf = new KeyFrame(Duration.seconds(0.017), // 60 FPS
                     ae -> {
 
@@ -213,6 +262,7 @@ public class GameFlow {
             gameLoop.play();
 
         }).start();
+
     }
 
     public Player getPlayer() {
