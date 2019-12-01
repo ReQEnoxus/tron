@@ -13,12 +13,19 @@ public class Router {
     private HashMap<String, String> routes;
     private static Stage mainStage;
 
-    private Router() {
-        routes = new HashMap<>();
-        mainStage = new Stage();
+    public static void init(Stage stage) {
+        instance = new Router(stage);
     }
 
-    private static Router instance = new Router();
+    private Router(Stage stage) {
+        routes = new HashMap<>();
+        mainStage = stage;
+        mainStage.setHeight(720);
+        mainStage.setWidth(1280);
+        mainStage.setResizable(false);
+    }
+
+    private static Router instance;
 
     public static void bind(String name, String path) {
         instance.routes.put(name, path);
