@@ -28,7 +28,11 @@ public class GameStartAwaiter extends Thread {
                 DataChunk dataChunk = ((DataChunk) serverData);
                 GameFlow.getInstance().getGameField().setCell(dataChunk.getX(), dataChunk.getY(), CellType.valueOf("PLAYER" + dataChunk.getPlayerId()));
             } else if (serverData instanceof GameStartMessage) {
-                break;
+                if (((GameStartMessage) serverData).getTimeOut() == 0) {
+                    break;
+                } else {
+                    Platform.runLater(() -> GameFlow.getInstance().scoreTextProperty().setValue("Игра начнется через " + ((GameStartMessage) serverData).getTimeOut() + " секунд"));
+                }
             } else if (serverData instanceof IntroduceClientsMessage) {
                 ClientSocketHandler.getConnection().writeObject(new DataChunk(GameFlow.getInstance().getPlayer().getPlayerNumber(), GameFlow.getInstance().getPlayer().getCurrentPoint().getX(), GameFlow.getInstance().getPlayer().getCurrentPoint().getY(), false));
             } else if (serverData instanceof PlayerLeftMessage) {

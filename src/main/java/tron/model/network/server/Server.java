@@ -55,20 +55,21 @@ public class Server extends Thread {
     }
 
     private void sendGameStartingMessage() {
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        
-        GameStartMessage gsm = new GameStartMessage();
-        for (ClientHandler client : clients) {
-            try {
-                synchronized (client.out) {
-                    client.out.writeObject(gsm);
-                    client.out.flush();
+        for (int i = 2; i >= 0; i--) {
+            GameStartMessage gsm = new GameStartMessage(i);
+            for (ClientHandler client : clients) {
+                try {
+                    synchronized (client.out) {
+                        client.out.writeObject(gsm);
+                        client.out.flush();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
