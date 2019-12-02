@@ -34,7 +34,6 @@ public class Field {
     public void setCell(int row, int col, CellType type) {
         field[row][col] = type;
         paintProperties.get(row).get(col).setValue(cellColor(type));
-
 //        System.out.println("row = " + row);
 //        System.out.println("col = " + col);
 //        System.out.println("type = " + type);
@@ -43,7 +42,7 @@ public class Field {
     private Paint cellColor(CellType type) {
         switch (type) {
             case EMPTY:
-                return Color.color(.2, .2, .2);
+                return Color.color(.14, .14, .14);
             case PLAYER1:
                 return Color.RED;
             case PLAYER2:

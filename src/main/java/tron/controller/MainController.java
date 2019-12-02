@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.Bloom;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -42,6 +43,9 @@ public class MainController {
 
         contentPane.setStyle("-fx-background-color: #232323");
         gameFlow.setGameField(new Field(noOfCellsInRow, noOfCellsInRow));
+
+        Bloom bloom = new Bloom(0.2);
+        gameGridPane.setEffect(bloom);
 
         logoImageView.setImage(new Image("/images/logo_anim.gif"));
 
