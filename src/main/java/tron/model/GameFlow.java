@@ -91,6 +91,8 @@ public class GameFlow {
 
     public void startGameLoop() {
         new Thread(() -> {
+            Platform.runLater(() -> scoreText.setValue("Ожидание других игроков"));
+            Platform.runLater(() -> timeText.setValue("00:00"));
             AtomicBoolean roundEnded = new AtomicBoolean(false);
 
             getPlayer().setDirection(PlayerHelper.getInitialDirection(getPlayer()));
