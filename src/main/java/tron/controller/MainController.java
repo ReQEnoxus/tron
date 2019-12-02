@@ -62,11 +62,8 @@ public class MainController {
 
         timeLabel.setStyle("color: #FFF;");
 
-        timeLabel.setText("00:00");
-        scoreLabel.setText("Ожидание других игроков");
-
-        GameFlow.getInstance().setScoreLabel(scoreLabel);
-        GameFlow.getInstance().setTimeLabel(timeLabel);
+        timeLabel.textProperty().bind(GameFlow.getInstance().timeTextProperty());
+        scoreLabel.textProperty().bind(GameFlow.getInstance().scoreTextProperty());
     }
 
     public void exitButtonPressed(ActionEvent actionEvent) throws IOException {

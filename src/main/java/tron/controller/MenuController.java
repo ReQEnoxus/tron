@@ -68,7 +68,7 @@ public class MenuController {
             Router.goTo("game", scene -> scene.setOnKeyPressed(keyEvent -> GameFlow.getInstance().changePlayerDirection(keyEvent.getCode())));
             GameFlow.getInstance().startGame();
         } else {
-            errorLabel.setText("Сервер переполнен");
+            errorLabel.setText(loginResponse.getMessage());
             errorLabel.setVisible(true);
         }
     }

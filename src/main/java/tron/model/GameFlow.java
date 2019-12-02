@@ -3,7 +3,8 @@ package tron.model;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.input.KeyCode;
 import javafx.util.Duration;
 import tron.controller.router.Router;
@@ -13,7 +14,6 @@ import tron.model.network.client.ClientSocketHandler;
 import tron.model.network.messages.*;
 import tron.model.network.threads.GameStartAwaiter;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,19 +28,25 @@ public class GameFlow {
     private int noOfCellsInCol;
 
     // constantly updating
-    private String timeText = "00:00";
-    private String scoreText = "Ожидание других игроков";
+    private StringProperty timeText = new SimpleStringProperty("00:00");
+    private StringProperty scoreText = new SimpleStringProperty("Ожидание других игроков");
 
-    private Label timeLabel;
-    private Label scoreLabel;
     private AtomicBoolean onBreak = new AtomicBoolean(false);
 
-    public void setTimeLabel(Label timeLabel) {
-        this.timeLabel = timeLabel;
+    public String getTimeText() {
+        return timeText.get();
     }
 
-    public void setScoreLabel(Label scoreLabel) {
-        this.scoreLabel = scoreLabel;
+    public StringProperty timeTextProperty() {
+        return timeText;
+    }
+
+    public String getScoreText() {
+        return scoreText.get();
+    }
+
+    public StringProperty scoreTextProperty() {
+        return scoreText;
     }
 
     public AtomicBoolean getOnBreak() {
@@ -75,8 +81,6 @@ public class GameFlow {
 
     public void startGame() {
         setBounds(128, 60);
-        setTimeLabel(timeLabel);
-        setScoreLabel(scoreLabel);
         setSpeedFactor(2);
         startGameLoop();
     }
@@ -88,7 +92,7 @@ public class GameFlow {
     public void startGameLoop() {
         new Thread(() -> {
             AtomicBoolean roundEnded = new AtomicBoolean(false);
-            System.out.println("player" + player.getPlayerNumber() + " game loop started");
+
             getPlayer().setDirection(PlayerHelper.getInitialDirection(getPlayer()));
             getPlayer().setLost(false);
             getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer()));
@@ -110,8 +114,8 @@ public class GameFlow {
                 e.printStackTrace();
             }
 
-            scoreText = "0:0:0:0";
-            timeText = "00:00";
+            Platform.runLater(() -> scoreText.setValue("0:0:0:0"));
+            Platform.runLater(() -> timeText.setValue("00:00"));
 
             gameLoop = new Timeline();
             gameLoop.setCycleCount(Timeline.INDEFINITE);
@@ -133,12 +137,11 @@ public class GameFlow {
                         roundEnded.set(true);
                         onBreak.set(true);
 
-                        System.out.println("GOT FROM SERVER: " + serverData);
 
-                        timeText = "Winner: " + ((RoundEndMessage) serverData).getWinner();
-                        scoreText = ((RoundEndMessage) serverData).getScores().stream()
+                        Platform.runLater(() -> timeText.setValue("Winner: " + ((RoundEndMessage) serverData).getWinner()));
+                        Platform.runLater(() -> scoreText.setValue(((RoundEndMessage) serverData).getScores().stream()
                                 .map(Object::toString)
-                                .collect(Collectors.joining(":"));
+                                .collect(Collectors.joining(":"))));
 
                         //getGameField().reset();
 
@@ -158,11 +161,12 @@ public class GameFlow {
                         ClientSocketHandler.getConnection().writeObject(new DataChunk(player.getPlayerNumber(), player.getCurrentPoint().getX(), player.getCurrentPoint().getY(), false));
                     } else if (serverData instanceof GameEndMessage) {
                         onBreak.set(true);
-                        System.out.println(serverData);
-                        System.out.println(new Date());
-                        scoreText = ((GameEndMessage) serverData).getMessage();
+
+
+                        Platform.runLater(() -> scoreText.setValue(((GameEndMessage) serverData).getMessage()));
                         for (int i = 2; i > 0; i--) {
-                            timeText = "Игра завершится через " + i + " секунд";
+                            int finalI = i;
+                            Platform.runLater(() -> timeText.setValue("Игра завершится через " + finalI + " секунд"));
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException e) {
@@ -195,9 +199,6 @@ public class GameFlow {
             KeyFrame kf = new KeyFrame(Duration.seconds(0.017), // 60 FPS
                     ae -> {
 
-                        timeLabel.setText(timeText);
-                        scoreLabel.setText(scoreText);
-
                         if (!onBreak.get()) {
                             long millis = System.currentTimeMillis() - timeStart.get();
                             String time = String.format("%02d:%02d",
@@ -206,7 +207,7 @@ public class GameFlow {
                                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
                             );
 
-                            timeText = time;
+                            Platform.runLater(() -> timeText.setValue(time));
 
                             if (!getPlayer().isLost()) {
                                 if (loops.get() != 0) {
