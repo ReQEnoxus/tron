@@ -2,6 +2,7 @@ package tron.controller;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -9,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import tron.controller.router.Router;
 import tron.model.GameFlow;
+import tron.model.UserSettings;
 import tron.model.network.client.ClientSocketHandler;
 import tron.model.network.messages.LoginResponse;
 import tron.model.network.server.Server;
@@ -23,6 +25,7 @@ public class MenuController {
     public TextField addressTextField;
     public Button enterButton;
     public Label errorLabel;
+    public CheckBox bloomEnabledCheckBox;
 
     public void initialize() {
         contentPane.setStyle("-fx-background-color: #202020");
@@ -33,6 +36,9 @@ public class MenuController {
         addressTextField.setVisible(false);
         enterButton.setVisible(false);
         errorLabel.setVisible(false);
+
+        bloomEnabledCheckBox.setSelected(true);
+        bloomEnabledCheckBox.setOnAction(evt -> UserSettings.bloomEnabled = bloomEnabledCheckBox.isSelected());
     }
 
     public void hostButtonPressed(ActionEvent actionEvent) throws IOException {

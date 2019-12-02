@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 import tron.model.GameFlow;
+import tron.model.UserSettings;
 import tron.model.entity.Field;
 
 import java.io.IOException;
@@ -45,7 +46,9 @@ public class MainController {
         gameFlow.setGameField(new Field(noOfCellsInRow, noOfCellsInRow));
 
         Bloom bloom = new Bloom(0.2);
-        gameGridPane.setEffect(bloom);
+        if (UserSettings.bloomEnabled) {
+            gameGridPane.setEffect(bloom);
+        }
 
         logoImageView.setImage(new Image("/images/logo_anim.gif"));
 

@@ -31,6 +31,8 @@
                         textFill="#0059ff"/>
                 <Label fx:id="errorLabel" alignment="CENTER" layoutX="480.0" layoutY="466.0" prefHeight="17.0"
                        prefWidth="320.0" text="Невозможно подключиться к серверу" textFill="RED"/>
+                <CheckBox fx:id="bloomEnabledCheckBox" layoutX="591.0" layoutY="496.0" mnemonicParsing="false"
+                          text="Bloom enabled" textFill="#5294ff"/>
             </children>
         </Pane>
     </children>

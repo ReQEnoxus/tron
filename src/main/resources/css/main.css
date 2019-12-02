@@ -25,3 +25,8 @@
 .placeholder {
     -fx-text-fill: #5294ff;
 }
+
+.check-box {
+    box-color: transparent;
+    -fx-text-fill: #5294ff;
+}
