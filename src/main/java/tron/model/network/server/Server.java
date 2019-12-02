@@ -55,7 +55,12 @@ public class Server extends Thread {
     }
 
     private void sendGameStartingMessage() {
-        System.out.println("gameStartingMessageSent");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
         GameStartMessage gsm = new GameStartMessage();
         for (ClientHandler client : clients) {
             try {
@@ -71,7 +76,7 @@ public class Server extends Thread {
 
     private void sendRoundEndMessage(String winner) {
         RoundEndMessage roundEndMessage = new RoundEndMessage(winner, state.getScores());
-        System.out.println("SENT TO CLIENTS: " + roundEndMessage);
+
         for (ClientHandler client : clients) {
             synchronized (client.out) {
                 try {
@@ -151,7 +156,7 @@ public class Server extends Thread {
 
         try {
             serverSocket = new ServerSocket(PORT);
-            System.out.println("Started game server on port: " + PORT);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,7 +169,7 @@ public class Server extends Thread {
                     break;
                 }
             } catch (IOException e) {
-                System.out.println("socket has been closed");
+
                 //e.printStackTrace();
             }
         }
@@ -186,10 +191,18 @@ public class Server extends Thread {
                 in = new ObjectInputStream(clientSocket.getInputStream());
                 out = new ObjectOutputStream(clientSocket.getOutputStream());
                 out.flush();
-                if (clients.size() < 4) {
+                if (clients.size() < 4 && !state.getGameStarted().get()) {
                     out.writeObject(new LoginResponse(true, player));
-                } else {
-                    out.writeObject(new LoginResponse(false, null));
+                } else if (clients.size() >= 4) {
+                    LoginResponse response = new LoginResponse(false, null);
+                    response.setMessage("Сервер переполнен");
+                    out.writeObject(response);
+                    authSuccess = false;
+                    return;
+                } else if (state.getGameStarted().get()) {
+                    LoginResponse response = new LoginResponse(false, null);
+                    response.setMessage("Игра уже идет");
+                    out.writeObject(response);
                     authSuccess = false;
                     return;
                 }
@@ -199,18 +212,18 @@ public class Server extends Thread {
             }
 
             clients.add(this);
-            System.out.println("Client" + clients.size() + " connected");
+
 
             introduceClients();
-            System.out.println("Clients introduced");
+
 
             introduceNewClient(player);
-            System.out.println("New connected player introduced");
+
 
             // Game has started at this point
 
             if (clients.size() == 4) {
-
+                state.getGameStarted().set(true);
                 sendGameStartingMessage();
             }
         }
@@ -222,7 +235,7 @@ public class Server extends Thread {
             }
             try {
                 while (true) {
-                    System.out.println(state);
+
                     Object serverData;
                     DataChunk dataChunk = null;
                     synchronized (in) {
@@ -242,6 +255,7 @@ public class Server extends Thread {
                                     sendPlayerLeftMessage(((GameExitRequest) serverData).getPlayerId());
                                     break;
                                 } else {
+                                    state.getGameStarted().set(false);
                                     sendGameEndMessage(true);
                                     break;
                                 }
@@ -269,11 +283,11 @@ public class Server extends Thread {
 
                         introduceClients();
 
-                        System.out.println("Round end message sent");
 
                         Thread.sleep(2000);
 
-                        if (state.getScores().stream().mapToInt(e -> e).max().getAsInt() == 11) {
+                        if (state.getScores().stream().mapToInt(e -> e).max().getAsInt() == 10) {
+                            state.getGameStarted().set(false);
                             sendGameEndMessage(false);
                             break;
                         } else {

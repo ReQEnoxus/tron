@@ -1,12 +1,22 @@
 package tron.model.entity;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GameState {
     private int currentRound;
     private ArrayList<String> players;
     private ArrayList<String> playersActive;
     private ArrayList<Integer> scores;
+    private AtomicBoolean gameStarted = new AtomicBoolean(false);
+
+    public AtomicBoolean getGameStarted() {
+        return gameStarted;
+    }
+
+    public void setGameStarted(AtomicBoolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
 
     public GameState() {
         players = new ArrayList<>();
