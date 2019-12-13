@@ -41,7 +41,7 @@ public class Server extends Thread {
     }
 
     private void introduceNewClient(Player player) {
-        DataChunk dataChunk = new DataChunk(player.getPlayerNumber(), PlayerHelper.getInitialPoint(player).getX(), PlayerHelper.getInitialPoint(player).getY(), false);
+        DataChunk dataChunk = new DataChunk(player.getPlayerNumber(), PlayerHelper.getInitialPoint(player.getPlayerNumber()).getX(), PlayerHelper.getInitialPoint(player.getPlayerNumber()).getY(), false);
         for (ClientHandler client : clients) {
             try {
                 synchronized (client.out) {

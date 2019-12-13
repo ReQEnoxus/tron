@@ -5,31 +5,16 @@ import tron.model.entity.Player;
 import tron.model.entity.Point;
 
 public class PlayerHelper {
-    public static Point getInitialPoint(Player player) {
-        switch (player.getPlayerNumber()) {
-            case 1:
-                return new Point(40, 20);
-            case 2:
-                return new Point(80, 20);
-            case 3:
-                return new Point(40, 40);
-            case 4:
-                return new Point(80, 40);
-            default:
-                throw new IllegalArgumentException("Game does not support more than 4 players");
-        }
-    }
-
-    public static Point getIntitialPoint(int id) {
+    public static Point getInitialPoint(int id) {
         switch (id) {
             case 1:
                 return new Point(40, 20);
             case 2:
-                return new Point(80, 20);
+                return new Point(88, 20);
             case 3:
                 return new Point(40, 40);
             case 4:
-                return new Point(80, 40);
+                return new Point(88, 40);
             default:
                 throw new IllegalArgumentException("Game does not support more than 4 players");
         }

@@ -97,7 +97,7 @@ public class GameFlow {
 
             getPlayer().setDirection(PlayerHelper.getInitialDirection(getPlayer()));
             getPlayer().setLost(false);
-            getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer()));
+            getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer().getPlayerNumber()));
 
             getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName()));
 
@@ -139,15 +139,12 @@ public class GameFlow {
                         roundEnded.set(true);
                         onBreak.set(true);
 
-
                         Platform.runLater(() -> timeText.setValue("Winner: " + ((RoundEndMessage) serverData).getWinner()));
                         Platform.runLater(() -> scoreText.setValue(((RoundEndMessage) serverData).getScores().stream()
                                 .map(Object::toString)
                                 .collect(Collectors.joining(":"))));
 
-                        //getGameField().reset();
-
-                        getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer()));
+                        getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer().getPlayerNumber()));
                         getPlayer().setDirection(PlayerHelper.getInitialDirection(getPlayer()));
                         getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName()));
                     } else if (serverData instanceof RoundStartMessage) {
@@ -251,8 +248,6 @@ public class GameFlow {
                                     }
                                     loops.set(speedFactor);
                                 }
-                            } else {
-
                             }
 
                             ClientSocketHandler.getConnection().writeObject(new DataChunk(getPlayer().getPlayerNumber(), getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), getPlayer().isLost()));
