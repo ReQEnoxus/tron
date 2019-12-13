@@ -18,12 +18,23 @@ public class Server extends Thread {
     private final int PORT = 55555;
     private List<ClientHandler> clients;
     private GameState state;
-    ServerSocket serverSocket;
+    private ServerSocket serverSocket;
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
         state = new GameState();
         this.start();
+    }
+
+    public void stopServer() {
+        clients.clear();
+        if (!serverSocket.isClosed()) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void introduceClients() {
@@ -131,7 +142,7 @@ public class Server extends Thread {
                 serverSocket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Socket was closed");
         }
 
     }
@@ -166,12 +177,11 @@ public class Server extends Thread {
             try {
                 if (!serverSocket.isClosed()) {
                     new ClientHandler(serverSocket.accept()).start();
-                } else if (serverSocket.isClosed()) {
+                } else {
                     break;
                 }
             } catch (IOException e) {
-
-                //e.printStackTrace();
+                System.out.println("Socket was closed");
             }
         }
     }
@@ -209,7 +219,7 @@ public class Server extends Thread {
                 }
                 out.flush();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Connection to server refused because: " + e.getMessage());
             }
 
             clients.add(this);
@@ -221,11 +231,11 @@ public class Server extends Thread {
             introduceNewClient(player);
 
 
-            // Game has started at this point
-
             if (clients.size() == 4) {
                 state.getGameStarted().set(true);
                 sendGameStartingMessage();
+
+                // Game has started at this point
             }
         }
 
