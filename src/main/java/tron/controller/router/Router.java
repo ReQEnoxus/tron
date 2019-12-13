@@ -3,6 +3,8 @@ package tron.controller.router;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -23,6 +25,12 @@ public class Router {
         mainStage.setHeight(720);
         mainStage.setWidth(1280);
         mainStage.setResizable(false);
+
+        mainStage.addEventFilter(KeyEvent.KEY_PRESSED, k -> {
+            if (k.getCode() == KeyCode.SPACE) {
+                k.consume();
+            }
+        });
     }
 
     private static Router instance;
