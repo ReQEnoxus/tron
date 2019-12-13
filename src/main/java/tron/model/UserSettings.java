@@ -1,5 +1,7 @@
 package tron.model;
 
+import javafx.beans.property.SimpleBooleanProperty;
+
 public class UserSettings {
-    public static boolean bloomEnabled = true;
+    public static SimpleBooleanProperty bloomEnabled = new SimpleBooleanProperty(false);
 }

@@ -47,7 +47,7 @@ public class MainController {
         gameFlow.setGameField(new Field(noOfCellsInRow, noOfCellsInRow));
 
         Bloom bloom = new Bloom(0.2);
-        if (UserSettings.bloomEnabled) {
+        if (UserSettings.bloomEnabled.get()) {
             gameGridPane.setEffect(bloom);
         }
 

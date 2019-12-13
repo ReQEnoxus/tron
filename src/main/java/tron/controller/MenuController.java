@@ -38,7 +38,7 @@ public class MenuController {
         errorLabel.setVisible(false);
 
         bloomEnabledCheckBox.setSelected(false);
-        bloomEnabledCheckBox.setOnAction(evt -> UserSettings.bloomEnabled = bloomEnabledCheckBox.isSelected());
+        bloomEnabledCheckBox.selectedProperty().bindBidirectional(UserSettings.bloomEnabled);
     }
 
     public void hostButtonPressed(ActionEvent actionEvent) throws IOException {
