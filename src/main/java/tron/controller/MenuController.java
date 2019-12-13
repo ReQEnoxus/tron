@@ -37,7 +37,7 @@ public class MenuController {
         enterButton.setVisible(false);
         errorLabel.setVisible(false);
 
-        bloomEnabledCheckBox.setSelected(true);
+        bloomEnabledCheckBox.setSelected(false);
         bloomEnabledCheckBox.setOnAction(evt -> UserSettings.bloomEnabled = bloomEnabledCheckBox.isSelected());
     }
 
