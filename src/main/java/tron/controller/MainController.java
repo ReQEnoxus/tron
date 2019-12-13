@@ -38,6 +38,7 @@ public class MainController {
 
         gameGridPane.setMinSize(1280, 600);
         gameGridPane.setGridLinesVisible(false);
+        gameGridPane.setScaleX(1.01);
 
         noOfCellsInRow = (int) gameGridPane.getMinWidth() / 10;
         noOfCellsInCol = (int) gameGridPane.getMinHeight() / 10;
