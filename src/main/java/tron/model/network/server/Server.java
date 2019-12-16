@@ -271,7 +271,7 @@ public class Server extends Thread {
                                     break;
                                 }
                             }
-                        } catch (EOFException e) {
+                        } catch (IOException e) {
                             break;
                         }
                     }
