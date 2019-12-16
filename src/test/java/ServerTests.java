@@ -24,12 +24,20 @@ public class ServerTests {
 
     @Test
     public void firstPlayerShouldBeAbleToConnect() {
-        Assert.assertTrue(((LoginResponse) response).isSuccess());
+        if (response instanceof LoginResponse) {
+            Assert.assertTrue(((LoginResponse) response).isSuccess());
+        } else {
+            Assert.fail();
+        }
     }
 
     @Test
     public void playerShouldObtainFirstNumberIfConnectedFirst() {
-        Assert.assertEquals(((LoginResponse) response).getPlayer().getPlayerNumber(), 1);
+        if (response instanceof LoginResponse) {
+            Assert.assertEquals(((LoginResponse) response).getPlayer().getPlayerNumber(), 1);
+        } else {
+            Assert.fail();
+        }
     }
 
     @Test
@@ -41,6 +49,5 @@ public class ServerTests {
     @AfterClass
     public static void closeConnection() {
         ClientSocketHandler.closeConnection();
-
     }
 }
