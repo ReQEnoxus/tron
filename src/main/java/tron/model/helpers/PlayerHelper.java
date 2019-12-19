@@ -8,9 +8,9 @@ public class PlayerHelper {
     public static Point getInitialPoint(int id) {
         switch (id) {
             case 1:
-                return new Point(40, 20);
+                return new Point(40, 15);
             case 2:
-                return new Point(88, 20);
+                return new Point(88, 15);
             case 3:
                 return new Point(40, 40);
             case 4:
