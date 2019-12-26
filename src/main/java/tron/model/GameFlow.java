@@ -99,7 +99,7 @@ public class GameFlow {
             getPlayer().setLost(false);
             getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer().getPlayerNumber()));
 
-            getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName()));
+            Platform.runLater(() -> getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName())));
 
             GameStartAwaiter gameStartWaiter = new GameStartAwaiter(); // thread that waits for the server to start the game
 
@@ -146,7 +146,7 @@ public class GameFlow {
 
                         getPlayer().setCurrentPoint(PlayerHelper.getInitialPoint(getPlayer().getPlayerNumber()));
                         getPlayer().setDirection(PlayerHelper.getInitialDirection(getPlayer()));
-                        getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName()));
+                        Platform.runLater(() -> getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf(getPlayer().getName())));
                     } else if (serverData instanceof RoundStartMessage) {
 
                         roundEnded.set(false);
@@ -185,13 +185,15 @@ public class GameFlow {
                         int rows = GameFlow.getInstance().getGameField().getField().length;
                         int cols = GameFlow.getInstance().getGameField().getField()[0].length;
 
-                        for (int i = 0; i < rows; i++) {
-                            for (int j = 0; j < cols; j++) {
-                                if (GameFlow.getInstance().getGameField().getField()[i][j] == CellType.valueOf("PLAYER" + ((PlayerLeftMessage) serverData).getPlayerId())) {
-                                    GameFlow.getInstance().getGameField().setCell(i, j, CellType.EMPTY);
+                        Platform.runLater(() -> {
+                            for (int i = 0; i < rows; i++) {
+                                for (int j = 0; j < cols; j++) {
+                                    if (GameFlow.getInstance().getGameField().getField()[i][j] == CellType.valueOf("PLAYER" + ((PlayerLeftMessage) serverData).getPlayerId())) {
+                                        GameFlow.getInstance().getGameField().setCell(i, j, CellType.EMPTY);
+                                    }
                                 }
                             }
-                        }
+                        });
                     }
                 }
             }).start();
@@ -216,7 +218,7 @@ public class GameFlow {
                                         case DOWN:
                                             if (getPlayer().getCurrentPoint().getY() + 1 < noOfCellsInCol && getGameField().getField()[getPlayer().getCurrentPoint().getX()][getPlayer().getCurrentPoint().getY() + 1] == CellType.EMPTY) {
                                                 getPlayer().setCurrentPoint(new Point(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY() + 1));
-                                                getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber()));
+                                                Platform.runLater(() -> getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber())));
                                             } else {
                                                 getPlayer().setLost(true);
                                             }
@@ -224,7 +226,7 @@ public class GameFlow {
                                         case UP:
                                             if (getPlayer().getCurrentPoint().getY() - 1 > -1 && getGameField().getField()[getPlayer().getCurrentPoint().getX()][getPlayer().getCurrentPoint().getY() - 1] == CellType.EMPTY) {
                                                 getPlayer().setCurrentPoint(new Point(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY() - 1));
-                                                getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber()));
+                                                Platform.runLater(() -> getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber())));
                                             } else {
                                                 getPlayer().setLost(true);
                                             }
@@ -232,7 +234,7 @@ public class GameFlow {
                                         case LEFT:
                                             if (getPlayer().getCurrentPoint().getX() - 1 > -1 && getGameField().getField()[getPlayer().getCurrentPoint().getX() - 1][getPlayer().getCurrentPoint().getY()] == CellType.EMPTY) {
                                                 getPlayer().setCurrentPoint(new Point(getPlayer().getCurrentPoint().getX() - 1, getPlayer().getCurrentPoint().getY()));
-                                                getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber()));
+                                                Platform.runLater(() -> getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber())));
                                             } else {
                                                 getPlayer().setLost(true);
                                             }
@@ -240,7 +242,7 @@ public class GameFlow {
                                         case RIGHT:
                                             if (getPlayer().getCurrentPoint().getX() + 1 < noOfCellsInRow && getGameField().getField()[getPlayer().getCurrentPoint().getX() + 1][getPlayer().getCurrentPoint().getY()] == CellType.EMPTY) {
                                                 getPlayer().setCurrentPoint(new Point(getPlayer().getCurrentPoint().getX() + 1, getPlayer().getCurrentPoint().getY()));
-                                                getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber()));
+                                                Platform.runLater(() -> getGameField().setCell(getPlayer().getCurrentPoint().getX(), getPlayer().getCurrentPoint().getY(), CellType.valueOf("PLAYER" + getPlayer().getPlayerNumber())));
                                             } else {
                                                 getPlayer().setLost(true);
                                             }
